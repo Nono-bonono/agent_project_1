@@ -61,13 +61,15 @@ def get_debate(debate_id, max_chars = 8000):
 
     return {"title": title, "transcript": "\n".join(lines)[:max_chars]}
 
+# --- Describing the tools for Hansard Agent --- 
 
 TOOLS = [
-    {"type: "function",
-     "function": {
-         "name": "search_parliament",
-         "description": (
-             "Search UK Hansard for spoken contributions in Parliament. "
+    {
+        "type": "function",
+        "function": {
+            "name": "search_parliament",
+            "description": (
+                "Search UK Hansard for spoken contributions in Parliament. "
                 "search_term supports directives joined with AND: "
                 "'spokenby:<name>', 'debate:<title text>', 'words:<words>'. "
                 "Returns member, date, house, debate title, debate_id and text excerpt."
@@ -85,3 +87,18 @@ TOOLS = [
             },
         },
     },
+    {
+        "type": "function",
+        "function": {
+            "name": "get_debate",
+            "description": "Fetch the transcript of a debate section using a debate_id from search_contributions.",
+            "parameters": {
+                "type": "object",
+                "properties": {"debate_id": {"type": "string"}},
+                "required": ["debate_id"],
+            },
+        },
+    },
+]
+ 
+FUNCS = {"search_parliament": search_parliament, "get_debate": get_debate}
