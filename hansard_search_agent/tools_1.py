@@ -1,6 +1,6 @@
 
 '''
-Tools for Hansard Agent to use
+Tools for hansard_search_agent to use
 '''
 
 import re

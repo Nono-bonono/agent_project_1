@@ -72,9 +72,6 @@ if __name__ == "__main__":
 
     result = run_agent(mp, topic, date_from, date_to)
 
-    mp, topic, *dates = sys.argv[1:]
-    print(run_agent(mp, topic, *dates))
-
     os.makedirs("outputs", exist_ok=True)
     filename = f"outputs/{mp}_{topic}.md".replace(" ", "_")
     with open(filename, "w", encoding="utf-8") as f:
