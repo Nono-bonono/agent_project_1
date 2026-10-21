@@ -1,15 +1,13 @@
 """
-This is a simple agent that evaluates movement in British 
-political parties based on speeches from the Houses of Parliament"""
+This is a simple agent that evaluates an MP's position on 
+a given topic from the Hansard public data.
+"""
 
-import datetime
 import json
 import os
 import sys
-import re
-import requests
 from tools import *
- 
+
 from dotenv import load_dotenv
 from openai import OpenAI
  
@@ -25,21 +23,23 @@ MODEL = os.environ.get("AGENT_MODEL", "anthropic/claude-sonnet-5.5")
 
 # --- System prompt ---
 
-SYSTEM = """You are a useful assistant that evaluates debates from the British Houses of Parliament
-that are relevant to the user query. These debates should be within the user given timeframe.
-You will then run them through a model that you have access to through your tools and asses the results."""
+SYSTEM = """You summarise a UK MP's position on a topic using Hansard.
+Steps: 1) find_mp to get their exact name. 2) search_parliament with
+'spokenby:<name> AND words:<topic>' (try synonyms if few hits). 
+If a Period is given, pass it to search_parliament as date_from and date_to.
+3) get_debate when an excerpt lacks context. Then write:
+- Overall position (2-3 sentences)
+- Key arguments, each with date + debate title
+- Any shift in position over time
+Only state what the speeches support; say if evidence is thin."""
 
 # --- Agent Loop ---
 
-def run_agent(question, max_turns = 8):
-
+def run_agent(mp, topic, date_from = None, date_to = None, max_turns=10):
+    question = f"MP: {mp}\nTopic: {topic}\nPeriod: {date_from or 'any'} to {date_to or 'now'}"
     messages = [
-        {"role": SYSTEM,
-         "content": (
-            "You research UK parliamentary debates using Hansard tools. "
-            "Search first, open debates when excerpts aren't enough, "
-            "and cite member, date and debate title."
-            ),
+        {"role": "system",
+         "content": SYSTEM,
         },
         {"role": "user", "content": question},
     ]
@@ -65,7 +65,7 @@ def run_agent(question, max_turns = 8):
     return "Stopped: hit max_turns."
 
 if __name__ == "__main__":
-    q = " ".join(sys.argv[1:]) or "What have MPs said about AI regulation this year?"
-    print(run_agent(q))
+    mp, topic, *dates = sys.argv[1:]
+    print(run_agent(mp, topic, *dates))
 
 

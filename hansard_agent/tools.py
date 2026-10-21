@@ -8,13 +8,31 @@ import requests
 
 HANSARD = "https://hansard-api.parliament.uk"
 
+MEMBERS = "https://members-api.parliament.uk/api"
+
+### --- Writing out tools for agent ---
+
+def find_mp(name):
+    '''Finding MP by name and returning info'''
+
+    r = requests.get(f"{MEMBERS}/Members/Search", params={"Name": name, "take": 5}, timeout=30)
+    r.raise_for_status()
+    return [
+        {
+            "name": m["value"]["nameDisplayAs"],
+            "party": (m["value"].get("latestParty") or {}).get("name"),
+            "constituency": (m["value"].get("latestHouseMembership") or {}).get("membershipFrom"),
+        }
+        for m in r.json().get("items", [])
+    ]
+
 def search_parliament(
         search_term,
         date_from = None,
         date_to = None,
         house = None,
         take = 10
-) -> str:
+):
     '''Search Hansard for relevant speeches to user query'''
 
     params = {
@@ -61,9 +79,27 @@ def get_debate(debate_id, max_chars = 8000):
 
     return {"title": title, "transcript": "\n".join(lines)[:max_chars]}
 
-# --- Describing the tools for Hansard Agent --- 
+
+### --- Describing the tools for Hansard Agent --- 
 
 TOOLS = [
+    {
+        "type": "function",
+        "function": {
+            "name": "find_mp",
+            "description": (
+                "Searches UK Hansard Members of Parliament and " 
+                "returns their party affiliation, house membership and constituency" 
+            ),
+            "parameters": {
+                "type": "object",
+                "properties": {
+                    "name": {"type": "string"}
+                },
+                "required": ["name"],
+            }
+        }
+    },
     {
         "type": "function",
         "function": {
@@ -101,4 +137,4 @@ TOOLS = [
     },
 ]
  
-FUNCS = {"search_parliament": search_parliament, "get_debate": get_debate}
+FUNCS = {"search_parliament": search_parliament, "get_debate": get_debate, "find_mp": find_mp}
