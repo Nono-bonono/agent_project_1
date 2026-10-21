@@ -68,4 +68,10 @@ if __name__ == "__main__":
     mp, topic, *dates = sys.argv[1:]
     print(run_agent(mp, topic, *dates))
 
+    os.makedirs("outputs", exist_ok=True)
+    filename = f"outputs/{mp}_{topic}.md".replace(" ", "_")
+    with open(filename, "w", encoding="utf-8") as f:
+        f.write(f"# {mp} on {topic}\n\n{result}\n")
+    print(f"Saved to {filename}")
+
 

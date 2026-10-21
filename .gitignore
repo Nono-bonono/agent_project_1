@@ -12,6 +12,9 @@ dist/
 openrouter_agent_example_math_time.py
 claude_agent_example_math_time.py
 
+# ---- Results ----
+outputs/
+
 # ---- Environments ----
 .venv/
 venv/
@@ -20,6 +23,7 @@ env/
 *.env
 .env.*
 !.env.example   
+
 # ---- OS / editor ----
 .DS_Store
 Thumbs.db
