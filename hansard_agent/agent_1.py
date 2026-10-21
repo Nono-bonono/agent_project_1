@@ -8,7 +8,7 @@ import os
 import sys
 import re
 import requests
-from .tools import *
+from tools import *
  
 from dotenv import load_dotenv
 from openai import OpenAI
@@ -34,14 +34,14 @@ You will then run them through a model that you have access to through your tool
 def run_agent(question, max_turns = 8):
 
     messages = [
-        {"role": "system",
+        {"role": SYSTEM,
          "content": (
             "You research UK parliamentary debates using Hansard tools. "
             "Search first, open debates when excerpts aren't enough, "
             "and cite member, date and debate title."
             ),
         },
-        {"role": "user", "content": "question"},
+        {"role": "user", "content": question},
     ]
 
     for _ in range(max_turns):
@@ -66,6 +66,6 @@ def run_agent(question, max_turns = 8):
 
 if __name__ == "__main__":
     q = " ".join(sys.argv[1:]) or "What have MPs said about AI regulation this year?"
-    print(run(q))
+    print(run_agent(q))
 
 

@@ -10,8 +10,8 @@ HANSARD = "https://hansard-api.parliament.uk"
 
 def search_parliament(
         search_term,
-        date_from,
-        date_to,
+        date_from = None,
+        date_to = None,
         house = None,
         take = 10
 ) -> str:
@@ -79,8 +79,8 @@ TOOLS = [
                 "properties": {
                     "search_term": {"type": "string"},
                     "house": {"type": "string", "enum": ["Commons", "Lords"]},
-                    "start_date": {"type": "string", "description": "yyyy-mm-dd"},
-                    "end_date": {"type": "string", "description": "yyyy-mm-dd"},
+                    "date_from": {"type": "string", "description": "yyyy-mm-dd"},
+                    "date_to": {"type": "string", "description": "yyyy-mm-dd"},
                     "take": {"type": "integer", "description": "Max results (default 10)"},
                 },
                 "required": ["search_term"],
@@ -91,7 +91,7 @@ TOOLS = [
         "type": "function",
         "function": {
             "name": "get_debate",
-            "description": "Fetch the transcript of a debate section using a debate_id from search_contributions.",
+            "description": "Fetch the transcript of a debate section using a debate_id from search_parliament.",
             "parameters": {
                 "type": "object",
                 "properties": {"debate_id": {"type": "string"}},
