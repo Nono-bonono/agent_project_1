@@ -6,7 +6,7 @@ a given topic from the Hansard public data.
 import json
 import os
 import sys
-from tools import *
+from tools_1 import *
 
 from dotenv import load_dotenv
 from openai import OpenAI
@@ -65,6 +65,13 @@ def run_agent(mp, topic, date_from = None, date_to = None, max_turns=10):
     return "Stopped: hit max_turns."
 
 if __name__ == "__main__":
+    mp = input("MP: ").strip()
+    topic = input("Topic: ").strip()
+    date_from = input("From (yyyy-mm-dd, blank for any): ").strip() or None
+    date_to = input("To (yyyy-mm-dd, blank for now): ").strip() or None
+
+    result = run_agent(mp, topic, date_from, date_to)
+
     mp, topic, *dates = sys.argv[1:]
     print(run_agent(mp, topic, *dates))
 
