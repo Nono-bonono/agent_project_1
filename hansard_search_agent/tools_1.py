@@ -59,13 +59,13 @@ def search_parliament(
             "house": c.get("House"),
             "debate": c.get("DebateSection"),
             "debate_id": c.get("DebateSectionExtId"),
-            "text": (c.get("ContributionTextFull") or c.get("ContributionText") or "")[:800],
+            "text": (c.get("ContributionTextFull") or c.get("ContributionText") or "")[:400],
         }
         for c in results
     ]
 
 
-def get_debate(debate_id, max_chars = 8000):
+def get_debate(debate_id, max_chars = 4000):
     r = requests.get(f"{HANSARD}/debates/debate/{debate_id}.json", timeout=30)
     r.raise_for_status()
     d = r.json()

@@ -188,7 +188,7 @@ TOOLS = [
                     "date_to": {"type": "string", "description": "yyyy-mm-dd"},
                     "take": {"type": "integer", "description": "Max results (default 10)"},
                 },
-                "required": ["mp_name", "topic", "site"],
+                "required": ["mp_name", "topic"],
             },
         },
     },

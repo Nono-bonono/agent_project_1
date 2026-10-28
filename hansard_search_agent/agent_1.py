@@ -6,11 +6,12 @@ a given topic from the Hansard public data.
 import json
 import os
 import sys
-load_dotenv('agent_test_key.env') 
-from tools_1 import *
 
 from dotenv import load_dotenv
 from openai import OpenAI 
+
+load_dotenv('agent_test_key.env') 
+from tools_1 import *
  
 client = OpenAI(
     base_url="https://openrouter.ai/api/v1",
@@ -23,7 +24,9 @@ MODEL = os.environ.get("AGENT_MODEL", "anthropic/claude-sonnet-5.5")
 # --- System prompt ---
 
 SYSTEM = """You summarise a UK MP's position on a topic using Hansard.
-Steps: 1) find_mp to get their exact name. 2) search_parliament with
+Steps: 
+1) find_mp to get their exact name. 
+2) search_parliament with
 'spokenby:<name> AND words:<topic>' (try synonyms if few hits). 
 If a Period is given, pass it to search_parliament as date_from and date_to.
 3) get_debate when an excerpt lacks context. Then write:
