@@ -6,6 +6,7 @@ for position anlysis. It retrieves data from a set number of sources.
 import json
 import os
 import sys
+load_dotenv('agent_test_key.env')
 from tools_2 import *
 
 from dotenv import load_dotenv

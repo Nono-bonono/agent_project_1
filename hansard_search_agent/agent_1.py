@@ -6,12 +6,11 @@ a given topic from the Hansard public data.
 import json
 import os
 import sys
+load_dotenv('agent_test_key.env') 
 from tools_1 import *
 
 from dotenv import load_dotenv
-from openai import OpenAI
- 
-load_dotenv('agent_test_key.env')  
+from openai import OpenAI 
  
 client = OpenAI(
     base_url="https://openrouter.ai/api/v1",

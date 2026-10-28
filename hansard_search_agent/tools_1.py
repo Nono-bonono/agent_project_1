@@ -137,4 +137,6 @@ TOOLS = [
     },
 ]
  
-FUNCS = {"search_parliament": search_parliament, "get_debate": get_debate, "find_mp": find_mp}
+FUNCS = {"search_parliament": search_parliament, 
+          "get_debate": get_debate, 
+          "find_mp": find_mp}
