@@ -27,17 +27,28 @@ MODEL = os.environ.get("AGENT_MODEL", "anthropic/claude-sonnet-5.5")
 
 SYSTEM = """
 You summarize a Member of Parliaments (MP) position using 2 specialized agents available to you.
-They are described in your 'TOOLS' schema.
-1) Call agent_1, this is an agent that will search official Parliament records via Hansard.
-2) Call agent_2, this is an agent that will search the wider web for material
-3)Then write:
+1) Call ask_hansard, this is an agent that will search official Parliament records via Hansard.
+2) Call ask_web, this is an agent that will search the wider web for material
+“If a Period is given, pass it as date_from and date_to”
+3) Compare what the MP says in Parliament with how they are reported elsewhere, 
+and note agreements, contradictions, and gaps.
+4)Then write:
 - "Overall position (2-3 sentences)"
-- "Key arguments each with source, date and url”
+- "Key arguments each with source, date and url where available”
 - "Any shift in position over time"
-- “If a Period is given, pass it as date_from and date_to”
-- “Ignore results where the MP is only mentioned in passing”
+- "Parliament vs media: agreements, contradictions, gaps"
 "Only state what the sources support; say if evidence is thin."
 """
+
+# ---- FUNCTIONS ----
+
+def ask_hansard(mp, topic, date_from=None, date_to=None):
+    '''The agent that searches Parliament Hansard'''
+    return agent_1.run_agent(mp, topic, date_from=date_from, date_to=date_to)
+
+def ask_web(mp, topic, date_from=None, date_to=None):
+    '''The agent that searches certain websites'''
+    return agent_2.run_agent(mp, topic, date_from=date_from, date_to=date_to)
 
 # ---- TOOLS SCHEMA ----
 
@@ -45,38 +56,38 @@ TOOLS = [
     {
         "type": "function",
         "function": {
-            "name": "search_site",
+            "name": "ask_hansard",
             "description": (
-                "Search the BBC or PoliticsHome or a politicians official page for articles quoting or written by an MP on a topic. "
-                "Returns title, date (may be null), url and a text excerpt."
+                "Run an agent that searches the Parliament website for an MPs position on a given topic"
             ),
             "parameters": {
                 "type": "object",
                 "properties": {
-                    "mp_name": {"type": "string"},
+                    "mp": {"type": "string"},
                     "topic": {"type": "string"},
-                    "site": {"type": "string", "enum": ["bbc", "politicshome", "mp_site"]},
-                    "domain": {"type": "string", "description": "Required when site is 'mp_site': the domain from find_mp_site, e.g. 'edmiliband.org'"},
                     "date_from": {"type": "string", "description": "yyyy-mm-dd"},
-                    "date_to": {"type": "string", "description": "yyyy-mm-dd"},
-                    "take": {"type": "integer", "description": "Max results (default 5)"},
+                    "date_to": {"type": "string", "description": "yyyy-mm-dd"}
                 },
-                "required": ["mp_name", "topic", "site"],
+                "required": ["mp", "topic"],
             },
         },
     },
     {
         "type": "function",
         "function": {
-            "name": "read_article",
-            "description": "Fetch the most relevant passages of an article by url, when the search excerpt isn't enough.",
+            "name": "ask_web",
+            "description": (
+                "Run an agent that searches certain websites for an MPs position on a given topic"
+            ),
             "parameters": {
                 "type": "object",
                 "properties": {
-                    "url": {"type": "string"},
+                    "mp": {"type": "string"},
                     "topic": {"type": "string"},
+                    "date_from": {"type": "string", "description": "yyyy-mm-dd"},
+                    "date_to": {"type": "string", "description": "yyyy-mm-dd"}
                 },
-                "required": ["url", "topic"],
+                "required": ["mp", "topic"],
             },
         },
     },
@@ -125,7 +136,7 @@ if __name__ == "__main__":
     result = run_operator(mp, topic, date_from, date_to)
 
     os.makedirs("outputs", exist_ok=True)
-    filename = f"outputs/web_{mp}_{topic}.md".replace(" ", "_")
+    filename = f"outputs/combined_{mp}_{topic}.md".replace(" ", "_")
     with open(filename, "w", encoding="utf-8") as f:
         f.write(f"# {mp} on {topic}\n\n{result}\n")
     print(f"Saved to {filename}")
