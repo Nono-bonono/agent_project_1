@@ -1,4 +1,7 @@
 import sys
+import os
+import json
+
 from pathlib import Path
 
 HERE = Path(__file__).parent   # the "Agent coding" folder
@@ -6,8 +9,8 @@ HERE = Path(__file__).parent   # the "Agent coding" folder
 sys.path.append(str(HERE / "hansard_search_agent"))
 sys.path.append(str(HERE / "web_search_agent"))
 
-import agent_1
-import agent_2
+from hansard_search_agent import agent_1
+from web_search_agent import agent_2
 
 from dotenv import load_dotenv
 from openai import OpenAI
@@ -77,6 +80,10 @@ TOOLS = [
             },
         },
     },
+]
+
+FUNCS = {"ask_hansard": ask_hansard, 
+         "ask_web": ask_web}
 
 # ---- OPERATOR LOOP ----
 
@@ -115,7 +122,7 @@ if __name__ == "__main__":
     date_from = input("From (yyyy-mm-dd, blank for any): ").strip() or None
     date_to = input("To (yyyy-mm-dd, blank for now): ").strip() or None
 
-    result = run_agent(mp, topic, date_from, date_to)
+    result = run_operator(mp, topic, date_from, date_to)
 
     os.makedirs("outputs", exist_ok=True)
     filename = f"outputs/web_{mp}_{topic}.md".replace(" ", "_")
