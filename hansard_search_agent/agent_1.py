@@ -27,9 +27,10 @@ SYSTEM = """You summarise a UK MP's position on a topic using Hansard.
 Steps: 
 1) find_mp to get their exact name. 
 2) search_parliament with
-'spokenby:<name> AND words:<topic>' (try synonyms if few hits). 
+'spokenby:<name> AND words:<topic>' (try synonyms if fewer than 5 results, but don't try more than 2 synonyms). 
 If a Period is given, pass it to search_parliament as date_from and date_to.
-3) get_debate when an excerpt lacks context. Then write:
+3) Use get_debate for at most 2 debates, only when an excerpt is ambiguous. Prefer excerpts.
+Then write:
 - Overall position (2-3 sentences)
 - Key arguments, each with date + debate title
 - Any shift in position over time
