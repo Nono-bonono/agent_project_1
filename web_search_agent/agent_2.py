@@ -78,7 +78,7 @@ def run_agent(mp, topic, date_from = None, date_to = None, max_turns=14):
             messages.append({"role": "tool", "tool_call_id": call.id, "content": content})
         tool_s = time.perf_counter() - t1
 
-        log_step(agent="hansard", turn=turn, model=MODEL,
+        log_step(agent="web", turn=turn, model=MODEL,
                     llm_s=round(llm_s, 2), tool_s=round(tool_s, 2),
                     prompt_tokens=resp.usage.prompt_tokens,
                     completion_tokens=resp.usage.completion_tokens,
@@ -88,7 +88,7 @@ def run_agent(mp, topic, date_from = None, date_to = None, max_turns=14):
         if not msg.tool_calls:
             return msg.content
 
-    log_step(agent="hansard", hit_max_turns=True)
+    log_step(agent="web", hit_max_turns=True)
     return "Stopped: hit max_turns."
 
 if __name__ == "__main__":
