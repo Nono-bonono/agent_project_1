@@ -60,6 +60,7 @@ def search_parliament(
             "debate": c.get("DebateSection"),
             "debate_id": c.get("DebateSectionExtId"),
             "text": (c.get("ContributionTextFull") or c.get("ContributionText") or "")[:400],
+            "url": f"https://hansard.parliament.uk/{c.get('House')}/{(c.get('SittingDate') or '')[:10]}" f"/debates/{c.get('DebateSectionExtId')}/",
         }
         for c in results
     ]

@@ -137,6 +137,7 @@ def run_operator(mp, topic, date_from = None, date_to = None, max_turns=10):
                     prompt_tokens=resp.usage.prompt_tokens,
                     completion_tokens=resp.usage.completion_tokens,
                     tool_calls=tool_names, errors=errors,
+                    output=msg.content if not msg.tool_calls else None,
                     done=not msg.tool_calls)
 
         if not msg.tool_calls:
