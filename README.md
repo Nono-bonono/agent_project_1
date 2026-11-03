@@ -88,5 +88,6 @@ See `outputs/combined_Ed_Miliband_AI.md`.
 
 ## Roadmap
 
+- [ ] Streamlining and optimising the setup to better understand hyperparameters
 - [ ] Analysis step (in the operator or as a 4th agent)
 - [ ] ...
