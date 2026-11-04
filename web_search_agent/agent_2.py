@@ -23,7 +23,7 @@ client = OpenAI(
 )
 
 # Claude Sonnet used as standard
-MODEL = os.environ.get("AGENT_MODEL", "anthropic/claude-sonnet-5.5")
+MODEL = os.environ.get("AGENT_MODEL", "anthropic/claude-haiku-5.5")
 
 SYSTEM = """
 You summarize a Member of Parliaments (MP) position on a given topic from material on the web.
