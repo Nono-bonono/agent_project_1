@@ -8,8 +8,8 @@ import pandas as pd
 import metrics
 import operator_agent
 
-VERSION = "v1-baseline"   # change this before each batch
-REPEATS = 3
+VERSION = "v1-baseline-test"   # change before each batch
+REPEATS = 1
 
 QUERIES = {
     "ed_energy":        {"mp": "Ed Miliband",   "topic": "energy",  "date_from": None,         "date_to": "2026-06-01"},
@@ -25,7 +25,7 @@ def benchmark_loop():
             t0 = time.perf_counter()
             try:
                 operator_agent.run_operator(**query)
-            except Exception as e:                     # one failure shouldn't kill the batch
+            except Exception as e:                     
                 metrics.log_step(agent="benchmark", error=str(e))
             metrics.log_step(agent="benchmark", total_s=round(time.perf_counter() - t0, 2))
 
