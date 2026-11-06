@@ -3,26 +3,14 @@ This agent looks for an MPs position on a topic from outside Hansard data and th
 for position anlysis. It retrieves data from a set number of sources.
 """
 
-import json
 import os
 import sys
-import time
 from pathlib import Path
 sys.path.append(str(Path(__file__).parent.parent))
-from metrics import log_step
 
-from dotenv import load_dotenv
-from openai import OpenAI
+from agent_loop import agent_loop
+from tools_2 import *          # TOOLS, FUNCS
 
-load_dotenv('agent_test_key.env')
-from tools_2 import *
-
-client = OpenAI(
-    base_url="https://openrouter.ai/api/v1",
-    api_key=os.environ["OPENROUTER_API_KEY"],
-)
-
-# Claude Sonnet used as standard
 MODEL = os.environ.get("AGENT_MODEL", "anthropic/claude-haiku-5.5")
 
 SYSTEM = """
@@ -46,50 +34,9 @@ Also make sure to separate an MPs own position from commentary about them."
 
 # --- Agent Loop ---
 
-def run_agent(mp, topic, date_from = None, date_to = None, max_turns=14):
+def run_agent(mp, topic, date_from=None, date_to=None, max_turns=14):
     question = f"MP: {mp}\nTopic: {topic}\nPeriod: {date_from or 'any'} to {date_to or 'now'}"
-    messages = [
-        {"role": "system",
-         "content": SYSTEM,
-        },
-        {"role": "user", "content": question},
-    ]
-
-    for turn in range(max_turns):
-        t0 = time.perf_counter()
-        resp = client.chat.completions.create(model=MODEL, messages=messages, tools=TOOLS)
-        llm_s = time.perf_counter() - t0
-
-        msg = resp.choices[0].message
-        messages.append(msg.model_dump(exclude_none=True))
-
-        tool_names, errors = [], 0
-        t1 = time.perf_counter()
-        for call in msg.tool_calls or []:          # "or []" handles the no-tools case
-            name = call.function.name
-            tool_names.append(name)
-            print(f"  → {name}({call.function.arguments})", file=sys.stderr)
-            try:
-                args = json.loads(call.function.arguments)
-                content = json.dumps(FUNCS[name](**args))
-            except Exception as e:
-                content = f"Error: {e}"
-                errors += 1
-            messages.append({"role": "tool", "tool_call_id": call.id, "content": content})
-        tool_s = time.perf_counter() - t1
-
-        log_step(agent="web", turn=turn, model=MODEL,
-                    llm_s=round(llm_s, 2), tool_s=round(tool_s, 2),
-                    prompt_tokens=resp.usage.prompt_tokens,
-                    completion_tokens=resp.usage.completion_tokens,
-                    tool_calls=tool_names, errors=errors,
-                    done=not msg.tool_calls)
-
-        if not msg.tool_calls:
-            return msg.content
-
-    log_step(agent="web", hit_max_turns=True)
-    return "Stopped: hit max_turns."
+    return agent_loop("web", MODEL, SYSTEM, question, TOOLS, FUNCS, max_turns)
 
 if __name__ == "__main__":
     mp = input("MP: ").strip()
