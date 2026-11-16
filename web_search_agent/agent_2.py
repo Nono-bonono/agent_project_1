@@ -47,7 +47,7 @@ if __name__ == "__main__":
     result = run_agent(mp, topic, date_from, date_to)
 
     os.makedirs("outputs/position", exist_ok=True)
-    filename = f"outputs/postition/web_{mp}_{topic}.md".replace(" ", "_")
+    filename = f"outputs/position/web_{mp}_{topic}.md".replace(" ", "_")
     with open(filename, "w", encoding="utf-8") as f:
         f.write(f"# {mp} on {topic}\n\n{result}\n")
     print(f"Saved to {filename}")
