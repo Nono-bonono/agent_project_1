@@ -9,9 +9,10 @@ dist/
 .eggs/
 
 
-# Couple specific files that are basic templates from Claude
+# Couple specific files
 openrouter_agent_example_math_time.py
 claude_agent_example_math_time.py
+!outputs/metrics/*.ipynb
 
 # ---- Results ----
 outputs/
