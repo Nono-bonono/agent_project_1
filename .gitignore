@@ -7,6 +7,7 @@ build/
 dist/
 *.egg-info/
 .eggs/
+*.ipynb
 
 # Couple specific files that are basic templates from Claude
 openrouter_agent_example_math_time.py

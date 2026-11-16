@@ -1,28 +1,14 @@
-import sys
 import os
-import json
-import time
-from metrics import log_step
-
+import sys
 from pathlib import Path
 
 HERE = Path(__file__).parent   # the "Agent coding" folder
-
 sys.path.append(str(HERE / "hansard_search_agent"))
 sys.path.append(str(HERE / "web_search_agent"))
 
-from hansard_search_agent import agent_1
-from web_search_agent import agent_2
-
-from dotenv import load_dotenv
-from openai import OpenAI
-
-load_dotenv('agent_test_key.env')
-
-client = OpenAI(
-    base_url="https://openrouter.ai/api/v1",
-    api_key=os.environ["OPENROUTER_API_KEY"],
-)
+import agent_1
+import agent_2
+from agent_loop import agent_loop
 
 # Claude Sonnet used as standard
 MODEL = os.environ.get("AGENT_MODEL", "anthropic/claude-sonnet-5.5")
@@ -100,51 +86,9 @@ FUNCS = {"ask_hansard": ask_hansard,
 
 # ---- OPERATOR LOOP ----
 
-def run_operator(mp, topic, date_from = None, date_to = None, max_turns=10):
+def run_operator(mp, topic, date_from=None, date_to=None, max_turns=10):
     question = f"MP: {mp}\nTopic: {topic}\nPeriod: {date_from or 'any'} to {date_to or 'now'}"
-    messages = [
-        {"role": "system",
-         "content": SYSTEM,
-        },
-        {"role": "user", "content": question},
-    ]
-
-    for turn in range(max_turns):
-        t0 = time.perf_counter()
-        resp = client.chat.completions.create(model=MODEL, messages=messages, tools=TOOLS)
-        llm_s = time.perf_counter() - t0
-
-        msg = resp.choices[0].message
-        messages.append(msg.model_dump(exclude_none=True))
-
-        tool_names, errors = [], 0
-        t1 = time.perf_counter()
-        for call in msg.tool_calls or []:          # "or []" handles the no-tools case
-            name = call.function.name
-            tool_names.append(name)
-            print(f"  → {name}({call.function.arguments})", file=sys.stderr)
-            try:
-                args = json.loads(call.function.arguments)
-                content = json.dumps(FUNCS[name](**args))
-            except Exception as e:
-                content = f"Error: {e}"
-                errors += 1
-            messages.append({"role": "tool", "tool_call_id": call.id, "content": content})
-        tool_s = time.perf_counter() - t1
-
-        log_step(agent="operator", turn=turn, model=MODEL,
-                    llm_s=round(llm_s, 2), tool_s=round(tool_s, 2),
-                    prompt_tokens=resp.usage.prompt_tokens,
-                    completion_tokens=resp.usage.completion_tokens,
-                    tool_calls=tool_names, errors=errors,
-                    output=msg.content if not msg.tool_calls else None,
-                    done=not msg.tool_calls)
-
-        if not msg.tool_calls:
-            return msg.content
-
-    log_step(agent="operator", hit_max_turns=True)
-    return "Stopped: hit max_turns."
+    return agent_loop("operator", MODEL, SYSTEM, question, TOOLS, FUNCS, max_turns)
 
 if __name__ == "__main__":
     mp = input("MP: ").strip()
